@@ -1,35 +1,10 @@
 <template>
-  <div @click="clickHandle">
-
-    <div class="userinfo" @click="bindViewTap">
-      <img class="userinfo-avatar" v-if="userInfo.avatarUrl" :src="userInfo.avatarUrl" background-size="cover" />
-      <img class="userinfo-avatar" src="/static/images/user.png" background-size="cover" />
-
-      <div class="userinfo-nickname">
-        <card :text="userInfo.nickName"></card>
+  <div class="index-wrap">
+    <scroll-view  class="tab" scroll-x :scroll-into-view="currentTab" scroll-with-animation="true">
+      <div :id="'id'+ index" class="tab-item" v-for="(item, index) of tabList" :key="index" @click="selectItem(index)">
+        <span :class="{active: tabIndex===index}" class="tab-link">{{item}}</span>
       </div>
-    </div>
-
-    <div class="usermotto">
-      <div class="user-motto">
-        <card :text="motto"></card>
-      </div>
-    </div>
-
-    <form class="form-container">
-      <input type="text" class="form-control" :value="motto" placeholder="v-model" />
-      <input type="text" class="form-control" v-model="motto" placeholder="v-model" />
-      <input type="text" class="form-control" v-model.lazy="motto" placeholder="v-model.lazy" />
-    </form>
-
-    <a href="/pages/counter/main" class="counter">去往Vuex示例页面</a>
-
-    <div class="all">
-        <div class="left">
-        </div>
-        <div class="right">
-        </div>
-    </div>
+    </scroll-view>
   </div>
 </template>
 
@@ -39,6 +14,8 @@ import card from '@/components/card'
 export default {
   data () {
     return {
+      tabIndex: 0,
+      tabList: ['推荐', '歌手', '排行', '搜索', '热门', '电台', '嘻哈'],
       motto: 'Hello miniprograme',
       userInfo: {
         nickName: 'mpvue',
@@ -46,81 +23,50 @@ export default {
       }
     }
   },
-
   components: {
     card
   },
-
+  computed: {
+    currentTab () {
+      let index = this.tabIndex - 2
+      return index >= 0 ? `id${index}` : 'id0'
+    }
+  },
   methods: {
-    bindViewTap () {
-      const url = '../logs/main'
-      if (mpvuePlatform === 'wx') {
-        mpvue.switchTab({ url })
-      } else {
-        mpvue.navigateTo({ url })
-      }
-    },
-    clickHandle (ev) {
-      console.log('clickHandle:', ev)
-      // throw {message: 'custom test'}
+    selectItem (index) {
+      this.tabIndex = index
     }
   },
 
   created () {
-    // let app = getApp()
   }
 }
 </script>
 
-<style scoped>
-.userinfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
-}
-
-.userinfo-nickname {
-  color: #aaa;
-}
-
-.usermotto {
-  margin-top: 150px;
-}
-
-.form-control {
-  display: block;
-  padding: 0 12px;
-  margin-bottom: 5px;
-  border: 1px solid #ccc;
-}
-.all{
-  width:7.5rem;
-  height:1rem;
-  background-color:blue;
-}
-.all:after{
-  display:block;
-  content:'';
-  clear:both;
-}
-.left{
-  float:left;
-  width:3rem;
-  height:1rem;
-  background-color:red;
-}
-
-.right{
-  float:left;
-  width:4.5rem;
-  height:1rem;
-  background-color:green;
+<style lang="stylus" scoped rel="stylesheet/stylus">
+@import "~common/stylus/variable"
+.index-wrap {
+  position: relative;
+  .tab {
+    width: 100%;
+    height: 44px;
+    line-height: 44px;
+    font-size: $font-size-medium;
+    white-space: nowrap;
+  }
+  .tab-item {
+    display: inline-block;
+    text-align: center;
+    width: 20%;
+    .tab-link {
+      padding-bottom :5px;
+      color:$color-text-l;
+      &.active {
+        color:$color-theme;
+        border-bottom:2px solid $color-theme;
+      }
+    }
+  }
 }
 </style>
+

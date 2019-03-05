@@ -30,9 +30,17 @@ export default {
 </script>
 
 <style>
+page {
+  background: red;
+}
 .counter-warp {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 120px;
+  left: 0;
+  background: pink;
   text-align: center;
-  margin-top: 100px;
 }
 .home {
   display: inline-block;
