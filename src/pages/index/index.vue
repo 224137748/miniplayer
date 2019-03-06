@@ -11,7 +11,7 @@
           <recommend></recommend>
         </swiper-item>
         <swiper-item class="swiper-item">
-          <div>2</div>
+          <singer></singer>
         </swiper-item>
         <swiper-item class="swiper-item">
           <div>3</div>
@@ -37,6 +37,7 @@
 <script>
 // import card from '@/components/card'
 import Recommend from 'components/recommend/recommend'
+import Singer from 'components/singer/singer'
 
 export default {
   data () {
@@ -51,7 +52,8 @@ export default {
     }
   },
   components: {
-    Recommend
+    Recommend,
+    Singer
   },
   computed: {
     currentTab () {
@@ -102,7 +104,6 @@ export default {
     right 0
     bottom 0
     top 44px
-    background pink
     .swiper-wrap {
       width 100%
       height 100%
