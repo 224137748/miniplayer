@@ -1,15 +1,42 @@
 <template>
   <div class="index-wrap">
-    <scroll-view  class="tab" scroll-x :scroll-into-view="currentTab" scroll-with-animation="true">
+    <scroll-view  class="tab" scroll-x :scroll-into-view="currentTab" :scroll-with-animation="true">
       <div :id="'id'+ index" class="tab-item" v-for="(item, index) of tabList" :key="index" @click="selectItem(index)">
         <span :class="{active: tabIndex===index}" class="tab-link">{{item}}</span>
       </div>
     </scroll-view>
+    <div class="main-container">
+      <swiper @change="swiperChange($event)" class="swiper-wrap" :indicator-dots="false" :autoplay="false" :current="tabIndex">
+        <swiper-item class="swiper-item">
+          <recommend></recommend>
+        </swiper-item>
+        <swiper-item class="swiper-item">
+          <div>2</div>
+        </swiper-item>
+        <swiper-item class="swiper-item">
+          <div>3</div>
+        </swiper-item>
+        <swiper-item class="swiper-item">
+          <div>4</div>
+        </swiper-item>
+        <swiper-item class="swiper-item">
+          <div>5</div>
+        </swiper-item>
+        <swiper-item class="swiper-item">
+          <div>6</div>
+        </swiper-item>
+        <swiper-item class="swiper-item">
+          <div>7</div>
+        </swiper-item>
+
+      </swiper>
+    </div>
   </div>
 </template>
 
 <script>
-import card from '@/components/card'
+// import card from '@/components/card'
+import Recommend from 'components/recommend/recommend'
 
 export default {
   data () {
@@ -24,7 +51,7 @@ export default {
     }
   },
   components: {
-    card
+    Recommend
   },
   computed: {
     currentTab () {
@@ -35,6 +62,9 @@ export default {
   methods: {
     selectItem (index) {
       this.tabIndex = index
+    },
+    swiperChange (evt) {
+      this.selectItem(evt.target.current)
     }
   },
 
@@ -46,7 +76,6 @@ export default {
 <style lang="stylus" scoped rel="stylesheet/stylus">
 @import "~common/stylus/variable"
 .index-wrap {
-  position: relative;
   .tab {
     width: 100%;
     height: 44px;
@@ -65,6 +94,18 @@ export default {
         color:$color-theme;
         border-bottom:2px solid $color-theme;
       }
+    }
+  }
+  .main-container {
+    position fixed
+    left 0
+    right 0
+    bottom 0
+    top 44px
+    background pink
+    .swiper-wrap {
+      width 100%
+      height 100%
     }
   }
 }
