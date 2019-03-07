@@ -8,7 +8,7 @@
     <div class="main-container">
       <swiper @change="swiperChange($event)" class="swiper-wrap" :indicator-dots="false" :autoplay="false" :current="tabIndex">
         <swiper-item class="swiper-item">
-          <recommend></recommend>
+          <recommend :tabIndex="tabIndex"></recommend>
         </swiper-item>
         <swiper-item class="swiper-item">
           <singer></singer>

@@ -1,27 +1,40 @@
 <template>
   <div class="disc-wrap">
-    <h1>disc-wrap</h1>
+    <music-list  :title="this.title" :bgImage="this.bgImage" :rank="false"></music-list>
   </div>
 </template>
 <script>
 import { BASEURL } from 'api/config'
+import { mapGetters, mapMutations } from 'vuex'
+import MusicList from 'components/music-list/music-list'
+
 export default {
   data () {
     return {
       id: '',
-      songs: [],
       description: ''
     }
   },
   onLoad (option) {
-    console.log(option)
-    this.id = option.id || ''
+    this.id = option.id
+  },
+  components: {
+    MusicList
   },
   mounted () {
     this._getSongList()
   },
+  computed: {
+    title () {
+      return this.disc.name
+    },
+    bgImage () {
+      return this.disc.picUrl
+    },
+    ...mapGetters(['disc'])
+  },
   methods: {
-    _getSongList () {
+    async _getSongList () {
       if (this.id) {
         let that = this
         wx.showLoading({
@@ -30,30 +43,39 @@ export default {
         setTimeout(() => {
           wx.hideLoading()
         }, 1000)
-        wx.request({
-          url: BASEURL + '/playlist/detail',
-          data: {
-            id: that.id
-          },
-          success (res) {
-            let result = res.data
-            console.log(result)
-            if (result.code === 200) {
-              that.songs = result.playlist.tracks || []
-              that.description = result.name || ''
-            }
-          }
-        })
+        let url = BASEURL + '/playlist/detail'
+        let result = await that.$http.get(url, {id: that.id})
+        that.formate(result.playlist.tracks)
       } else {
         setTimeout(() => {
           this._getSongList()
-        }, 300)
+        }, 30)
       }
-    }
+    },
+    formate (data) {
+      let newArr = data.map((el) => {
+        let obj = {
+          name: el.name || '',
+          desc: el.ar[0].name + ' 。 ' + el.al.name,
+          id: el.id
+        }
+        return obj
+      })
+      this.setSongs(newArr)
+    },
+    ...mapMutations({
+      setSongs: 'SET_SONGS'
+    })
+  },
+  onUnload () {
+    this.setSongs([])
   }
 }
 </script>
 <style lang="stylus" scoped>
+.disc-wrap {
+  height 100vh
+}
 </style>
 
 

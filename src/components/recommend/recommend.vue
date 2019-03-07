@@ -1,8 +1,8 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" v-show="recommends.length > 0">
     <scroll-view class="recommend-content" scroll-y>
       <div>
-        <swiper class="slider-wrapper"  circular="true" interval="4000" autoplay indicator-dots="true" indicator-active-color="rgba(0,0,0,.8)">
+        <swiper class="slider-wrapper"  circular="true" interval="4000" :autoplay="checkAutoplay" indicator-dots="true" indicator-active-color="rgba(0,0,0,.8)">
           <swiper-item v-for="(item, index) of recommends" :key="index">
             <img :src="item.imageUrl" alt="" class="needsclick">
           </swiper-item>
@@ -29,6 +29,12 @@
 import { BASEURL } from 'api/config'
 import { mapMutations } from 'vuex'
 export default {
+  props: {
+    tabIndex: {
+      type: Number,
+      default: 0
+    }
+  },
   data () {
     return {
       recommends: [],
@@ -40,6 +46,9 @@ export default {
     this._getDiscList()
   },
   computed: {
+    checkAutoplay () {
+      return this.tabIndex === 0
+    }
   },
   methods: {
     // 获取banner图
@@ -55,33 +64,28 @@ export default {
         }
       })
     },
-
     // 获取歌单列表
-    _getDiscList () {
+    async _getDiscList () {
       let that = this
-      wx.request({
-        url: BASEURL + '/personalized',
-        success (res) {
-          let result = res.data
-          if (result.code === 200) {
-            that.discList = result.result || []
-          }
-        }
-      })
+      let url = BASEURL + '/personalized'
+      let result = await this.$http.get(url)
+      if (result.code === 200) {
+        that.discList = result.result || []
+      }
     },
     selectItem (item) {
       wx.navigateTo({
-        url: `../disc/main?id=${item.id}`
+        url: `/pages/disc/main?id=${item.id}`
       })
       this.setDisc(item)
-    }
-  },
-  ...mapMutations({
-    setDisc: 'SET_DISC'
-  })
+    },
+    ...mapMutations({
+      setDisc: 'SET_DISC'
+    })
+  }
 }
 </script>
-<style lang="stylus" scoped>
+<style lang="stylus" scoped rel="stylesheet/stylus">
 @import "~common/stylus/variable"
 .recommend {
   width 100%
