@@ -28,9 +28,9 @@
         <swiper-item class="swiper-item">
           <div>7</div>
         </swiper-item>
-
       </swiper>
     </div>
+    <music-player></music-player>
   </div>
 </template>
 
@@ -38,6 +38,7 @@
 // import card from '@/components/card'
 import Recommend from 'components/recommend/recommend'
 import Singer from 'components/singer/singer'
+import MusicPlayer from 'components/player/player'
 
 export default {
   data () {
@@ -53,7 +54,8 @@ export default {
   },
   components: {
     Recommend,
-    Singer
+    Singer,
+    MusicPlayer
   },
   computed: {
     currentTab () {
@@ -78,6 +80,11 @@ export default {
 <style lang="stylus" scoped rel="stylesheet/stylus">
 @import "~common/stylus/variable"
 .index-wrap {
+  position fixed
+  left 0
+  top 0
+  right 0
+  bottom 0
   .tab {
     width: 100%;
     height: 44px;

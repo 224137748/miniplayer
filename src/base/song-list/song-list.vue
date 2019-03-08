@@ -5,7 +5,7 @@
         <div class="rank" v-show="rank"></div>
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
-          <p class="desc">{{song.desc}}</p>
+          <p class="desc">{{song.singer + '-' + song.album}}</p>
         </div>
       </li>
     </ul>
@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     selectItem (item, index) {
-      console.log(item, index)
       this.$emit('selectSongs', item, index)
     }
   }

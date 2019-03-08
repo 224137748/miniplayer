@@ -11,17 +11,17 @@
       <div class="filter" ref="filter"></div>
     </div>
     <!-- 背景遮罩层 -->
-    <div class="bg-layer" ref="layer"></div>
-    <scroll-view  class="list" scroll-y @scroll="scroll($event)" :style="bindStyle" upper-threshold="1000" @selectSongs="selectSongs">
+    <!-- <div class="bg-layer" ref="layer"></div> -->
+    <scroll-view  class="list" scroll-y @scroll="scroll($event)" :style="bindStyle" upper-threshold="1000" >
       <div class="song-list-wrapper" >
-        <song-list  :rank="rank"></song-list>
+        <song-list  :rank="rank" @selectSongs="selectSongs"></song-list>
       </div>
     </scroll-view>
   </div>
 </template>
 <script>
 import SongList from 'base/song-list/song-list'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 const RESERVED_HEIGHT = 40
 export default {
   props: {
@@ -59,20 +59,31 @@ export default {
     let that = this
     wx.createSelectorQuery().select('.bg-image').boundingClientRect(res => {
       that.imageHeight = res.height
-      that.minTranslateY = -that.imageHeight + RESERVED_HEIGHT
+      that.minTranslateY = that.imageHeight - RESERVED_HEIGHT
       that.bindStyle = `top:${that.imageHeight}px`
     }).exec()
   },
   methods: {
     scroll (evt) {
-      // this.scrollY = evt.mp.detail.scrollTop
     },
-    selectSongs(item, index) {
-
-    }
+    selectSongs (item, index) {
+      this.selectPlay({
+        list: this.songs,
+        index
+      })
+      wx.redirectTo({
+        url: '/pages/index/main'
+      })
+    },
+    ...mapActions(['selectPlay'])
   },
   watch: {
     scrollY (newY) {
+      // let translateY = Math.min(newY, this.minTranslateY)
+      // this.bglayerStyle = `transform: translate3d(0, ${-translateY}px, 0)`
+      // let zIndex = 0
+      // let scale = 1
+      // let blur = 0
     }
   }
 }
@@ -141,14 +152,17 @@ export default {
       background: rgba(7, 17, 27, 0.4)
     }
   }
+  .bg-layer {
+    position: relative
+    height: 100%
+    background: $color-background
+  }
   .list {
     position fixed
     top 0
     bottom 0
-    width 100%
     background $color-background
     width 100%
-    height 100%
     .song-list-wrapper {
       padding 20px 30px
     }

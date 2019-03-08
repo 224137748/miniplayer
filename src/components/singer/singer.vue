@@ -3,7 +3,7 @@
     <scroll-view class="listview" scroll-y v-if="singer.length > 0" @scrolltolower="_getSingerList">
       <ul>
         <li class="list-group-item" v-for="(item, index) of singer" :key="index" @click="selectSinger(item)">
-          <img class="avatar" :src="item.picUrl + '?imageView&thumbnail=246x0&quality=75&tostatic=0&type=jpg'" alt="">
+          <img class="avatar" :src="item.img1v1Url + '?imageView&thumbnail=246x0&quality=75&tostatic=0&type=jpg'" alt="">
           <span class="name">{{item.name}}</span>
         </li>
       </ul>
@@ -12,6 +12,7 @@
 </template>
 <script>
 import { BASEURL } from 'api/config'
+import { mapMutations } from 'vuex'
 export default {
   data () {
     return {
@@ -51,8 +52,18 @@ export default {
       })
     },
     selectSinger (item) {
-      console.log('selectSinger', item)
-    }
+      let obj = {
+        name: item.name,
+        picUrl: item.img1v1Url
+      }
+      this.setDisc(obj)
+      wx.navigateTo({
+        url: '/pages/singer-detail/main?id=' + item.id
+      })
+    },
+    ...mapMutations({
+      setDisc: 'SET_DISC'
+    })
   }
 }
 </script>

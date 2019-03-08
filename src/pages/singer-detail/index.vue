@@ -1,29 +1,25 @@
 <template>
-  <div class="disc-wrap">
-    <music-list  :title="this.title" :bgImage="this.bgImage" :rank="false"></music-list>
+  <div class="singer-detail-wrapper">
+    <music-list :title="title" :bgImage="bgImage"></music-list>
   </div>
 </template>
 <script>
+import MusicList from 'components/music-list/music-list'
 import { BASEURL } from 'api/config'
 import { mapGetters, mapMutations } from 'vuex'
 import { createSong } from 'common/js/song'
-import MusicList from 'components/music-list/music-list'
 
 export default {
   data () {
     return {
-      id: '',
-      description: ''
+      id: ''
     }
-  },
-  onLoad (option) {
-    this.id = option.id
   },
   components: {
     MusicList
   },
-  mounted () {
-    this._getSongList()
+  onLoad (option) {
+    this.id = option.id
   },
   computed: {
     title () {
@@ -34,21 +30,24 @@ export default {
     },
     ...mapGetters(['disc'])
   },
+  mounted () {
+    this._getSingerDetail()
+  },
   methods: {
-    async _getSongList () {
+    async _getSingerDetail () {
+      let that = this
       if (this.id) {
-        let that = this
         wx.showLoading({
           title: '加载中'
         })
-        let url = BASEURL + '/playlist/detail'
-        let result = await that.$http.get(url, {id: that.id})
-        that.formate(result.playlist.tracks)
+        let url = BASEURL + '/artists'
+        let res = await this.$http.get(url, {id: that.id})
+        this.formate(res.hotSongs)
         wx.hideLoading()
       } else {
         setTimeout(() => {
-          this._getSongList()
-        }, 30)
+          this._getSingerDetail()
+        }, 300)
       }
     },
     formate (data) {
@@ -69,9 +68,7 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-.disc-wrap {
+.singer-detail-wrapper {
   height 100vh
 }
 </style>
-
-

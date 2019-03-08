@@ -52,17 +52,12 @@ export default {
   },
   methods: {
     // 获取banner图
-    _getRecommend () {
+    async _getRecommend () {
       let that = this
-      wx.request({
-        url: BASEURL + '/banner',
-        success (res) {
-          let result = res.data
-          if (result.code === 200) {
-            that.recommends = result.banners || []
-          }
-        }
-      })
+      let res = await this.$http.get(BASEURL + '/banner')
+      if (res.code === 200) {
+        that.recommends = res.banners || []
+      }
     },
     // 获取歌单列表
     async _getDiscList () {
@@ -77,7 +72,11 @@ export default {
       wx.navigateTo({
         url: `/pages/disc/main?id=${item.id}`
       })
-      this.setDisc(item)
+      let obj = {
+        name: item.name,
+        picUrl: item.picUrl
+      }
+      this.setDisc(obj)
     },
     ...mapMutations({
       setDisc: 'SET_DISC'

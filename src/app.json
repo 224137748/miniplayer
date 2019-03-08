@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/main",
     "pages/disc/main",
+    "pages/singer-detail/main",
     "pages/logs/main"
   ],
   "window": {
