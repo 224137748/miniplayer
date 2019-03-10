@@ -21,6 +21,9 @@ const mutations = {
   },
   [types.SET_CURRENT_INDEX] (state, index) {
     state.currentIndex = index
+  },
+  [types.SET_PLAYING_STATE] (state, flag) {
+    state.playing = flag
   }
 }
 export default mutations

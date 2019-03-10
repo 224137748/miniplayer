@@ -1,10 +1,11 @@
 import * as fly from './fly'
 
-export function getLyric (id) {
-  const url = 'http://aixbx.xyz:3000/lyric'
-  fly.get(url, { id }).then(res => {
+export async function getLyric (id) {
+  const url = 'https://aixbx.xyz/lyric'
+  try {
+    let res = await fly.get(url, { id })
     return Promise.resolve(res)
-  }).catch(err => {
+  } catch (err) {
     return Promise.reject(err)
-  })
+  }
 }

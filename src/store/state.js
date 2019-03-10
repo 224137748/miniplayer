@@ -2,6 +2,8 @@ import { playMode } from 'common/js/config'
 const state = {
   // 歌单详情信息
   disc: {},
+  // 播放状态
+  playing: false,
   // 歌取列表
   songs: [],
   // 是否全屏

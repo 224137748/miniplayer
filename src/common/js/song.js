@@ -1,5 +1,5 @@
 import { getLyric } from '../../api/songs'
-import { Base64 } from 'js-base64'
+// import { Base64 } from 'js-base64'
 class Song {
   constructor ({ id, mid, singer, name, album, duration, image, url }) {
     this.id = id
@@ -11,15 +11,20 @@ class Song {
     this.image = image
     this.url = url
   }
-  getLyric () {
+  async getLyric () {
     if (this.lyric) {
       return Promise.resolve(this.lyric)
     }
     return new Promise((resolve, reject) => {
-      getLyric(this.mid).then(res => {
-        console.log('get lyric')
-        this.lyric = Base64.decode(res.lrc.lyric)
-      })
+      try {
+        let res = await getLyric(this.id)
+        if (res.code === 200) {
+          this.lyric = res.lrc.lyric
+          return Promise.resolve(lyric)
+        }
+      } catch(err) {
+        reject(err)
+      }
     })
   }
 }
