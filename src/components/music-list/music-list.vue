@@ -71,7 +71,7 @@ export default {
         list: this.songs,
         index
       })
-      wx.redirectTo({
+      wx.reLaunch({
         url: '/pages/index/main'
       })
     },

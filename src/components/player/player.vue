@@ -20,7 +20,7 @@
               </div>
             </div>
             <div class="playing-lyric-wrapper">
-              <div class="playing-lyric"></div>
+              <div class="playing-lyric">{{playingLyric}}</div>
             </div>
           </div>
           <scroll-view duration="500" class="middle-r" :scroll-into-view="scrollId" scroll-y :style="lyricListStyle">
@@ -38,11 +38,11 @@
             <span class="dot" :class="{active: currentShow === 'lyric'}"></span>
           </div>
           <div class="progress-wrapper">
-            <span class="time time-l"></span>
-            <div class="progress-bar">
-
+            <span class="time time-l">{{format}}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent" @percentChange="onPercentChange"></progress-bar>
             </div>
-            <span class="time"></span>
+            <span class="time time-r">{{duration}}</span>
           </div>
           <div class="operators">
             <div class="icon i-left" @click="changeMode">
@@ -70,6 +70,7 @@
 import { mapGetters, mapMutations } from 'vuex'
 import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
+import ProgressBar from 'base/progress-bar/progress-bar'
 // import { prefixStyle } from 'common/js/dom'
 import Lyric from 'lyric-parser'
 const BASEURL = 'https://aixbx.xyz'
@@ -84,30 +85,25 @@ export default {
       rotateAngle: 0,
       playingLyric: '',
       currentLineNum: 0,
-      scrollTop: 0,
       currentShow: 'cd',
       lyricListStyle: '',
-      middleLStyle: ''
+      middleLStyle: '',
+      Animation: {},
+      currentTime: 0,
+      duration: 0
     }
   },
-  onReady () {
-    this.animation = wx.createAnimation({duration: 20000 * 100})
+  components: {
+    ProgressBar
   },
-  components: {},
+  created () {
+    this.animation = wx.createAnimation({duration: 20000 * 100})
+    this.touch = {}
+    this.initAuido()
+    console.log('created')
+    this.getSyctemInfo()
+  },
   computed: {
-    Animation () {
-      if (this.playing) {
-        this.animation.rotate(360 * 100).step()
-        this.rotateTimer = setInterval(() => {
-          this.rotateAngle++
-          this.rotateAngle %= 360
-        }, 1000 / 18)
-      } else {
-        clearInterval(this.rotateTimer)
-        this.animation.rotate(this.rotateAngle, 0).scale(1).translate(0, 0).skew(0, 0).step({duration: 0})
-      }
-      return this.animation.export()
-    },
     cdCls () {
       return this.playing ? 'play' : 'paly pause'
     },
@@ -125,6 +121,15 @@ export default {
     playIcon () {
       return this.playing ? 'icon-pause' : 'icon-play'
     },
+    percent () {
+      return this.currentTime / this.currentSong.duration
+    },
+    format () {
+      let interval = this.currentTime | 0
+      const minute = interval / 60 | 0
+      const second = this._pad(interval % 60)
+      return `${minute}:${second}`
+    },
     ...mapGetters([
       'playList',
       'fullScreen',
@@ -134,12 +139,6 @@ export default {
       'currentSong',
       'mode'
     ])
-  },
-  created () {
-    this.touch = {}
-    this.initAuido()
-    console.log('created')
-    this.getSyctemInfo()
   },
   mounted () {
   },
@@ -158,7 +157,7 @@ export default {
       audioCtx.onPlay(this.ready)
       audioCtx.onCanplay(() => {
         console.log('music is ready')
-        this.setPlayingState(true)
+        this.playing && audioCtx.play()
       })
       audioCtx.onEnded(this.end)
       audioCtx.onTimeUpdate(this.updateTime)
@@ -182,11 +181,6 @@ export default {
     handleLyric (lyric) {
       let lineNum = lyric.lineNum
       this.currentLineNum = lineNum
-      if (lineNum > 5) {
-        this.scrollID = lineNum - 5 + 'id'
-      } else {
-        this.scrollTop = 0
-      }
       this.playingLyric = lyric.txt
     },
     // 歌曲准备
@@ -200,8 +194,8 @@ export default {
       console.log('音频audio错误', code)
       this.songReady = false
     },
-    updateTime (evt) {
-      // console.log('timeevt', evt)
+    updateTime () {
+      this.currentTime = this.audioCtx.currentTime
     },
     end () {
       if (this.mode === playMode.loop) {
@@ -213,6 +207,7 @@ export default {
     loop () {
       console.log('loop')
       this.audioCtx.seek(0)
+      // this.audioCtx.currentTime = 0
       this.audioCtx.play()
       if (this.currentLyric) {
         this.currentLyric.seek(0)
@@ -263,8 +258,23 @@ export default {
       }
       this.setPlayState(!this.playing)
       if (this.currentLyric) {
-        this.currentLyric.togglePlay()
+        // 微信不兼容toggle
+        // this.currentLyric.togglePlay()
       }
+    },
+    formatFunction (interval) {
+      interval = interval | 0
+      const minute = interval / 60 | 0
+      const second = this._pad(interval % 60)
+      this.duration = `${minute}:${second}`
+    },
+    _pad (num, n = 2) {
+      let len = num.toString().length
+      while (len < n) {
+        num = '0' + num
+        len++
+      }
+      return num
     },
     // 改变播放模式
     changeMode () {
@@ -305,8 +315,8 @@ export default {
       const left = this.currentShow === 'cd' ? 0 : -innerWidth
       const offsetWidth = Math.min(0, Math.max(-innerWidth, left + deltaX))
       this.touch.percent = Math.abs(offsetWidth / innerWidth)
-      this.lyricListStyle = `transform: translate3d(${offsetWidth}px, 0, 0);transform-duration: 0`
-      this.middleLStyle = `opacity: ${1 - this.touch.percent};transform-duration: 0`
+      this.lyricListStyle = `transform: translate3d(${offsetWidth}px, 0, 0);transition-duration: 0;transi`
+      this.middleLStyle = `opacity: ${1 - this.touch.percent};transition-duration: 0`
     },
     middleTouchEnd (e) {
       let offsetWidth
@@ -330,8 +340,34 @@ export default {
           offsetWidth = -this.windowWidth
         }
       }
-      this.lyricListStyle = `transform: translate3d(${offsetWidth}px, 0, 0);transform-duration: 0.5s`
-      this.middleLStyle = `opacity: ${opacity};transform-duration: 0.5s`
+      this.lyricListStyle = `transform: translate3d(${offsetWidth}px, 0, 0);transition-duration: 0.3s`
+      this.middleLStyle = `opacity: ${opacity};transition-duration: 0.3s`
+    },
+    initAnimate (newVal) {
+      setTimeout(() => {
+        if (newVal) {
+          this.firstIn = false
+          this.animation.rotate(360 * 100).step()
+          this.rotateTimer = setInterval(() => {
+            this.rotateAngle++
+            this.rotateAngle %= 360
+          }, 1000 / 18)
+        } else {
+          clearInterval(this.rotateTimer)
+          this.animation.rotate(this.rotateAngle, 0).scale(1).translate(0, 0).skew(0, 0).step({duration: 0})
+        }
+        this.Animation = this.animation.export()
+      }, 200)
+    },
+    onPercentChange (percent) {
+      let currentTime = percent * this.currentSong.duration
+      this.audioCtx.seek(currentTime)
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
+      }
     },
     ...mapMutations({
       setPlayState: 'SET_PLAYING_STATE',
@@ -347,6 +383,11 @@ export default {
       if (!newSong.id || newSong.id === oldSong.id) {
         return
       }
+      // 格式化歌曲时长
+      this.formatFunction(newSong.duration)
+      wx.showLoading({
+        title: '加载中'
+      })
       let url = '/song/url'
       let res = await this.$http.get(BASEURL + url, {id: newSong.id})
       console.log('get song url', res.data)
@@ -365,6 +406,9 @@ export default {
         this.currentLyric.stop()
       }
       this.getLyric()
+      setTimeout(() => {
+        wx.hideLoading()
+      }, 1000)
     },
     playing (newVal) {
       if (this.audioCtx.src) {
@@ -373,9 +417,7 @@ export default {
           this.currentLyric.play()
         }
       }
-    },
-    currentLineNum (newVal) {
-      console.log('currentlineNum', newVal, this.scrollId)
+      this.initAnimate(newVal)
     }
   }
 }
@@ -498,6 +540,18 @@ export default {
               height 100%
               border-radius 50%
             }
+          }
+        }
+        .playing-lyric-wrapper {
+          width 80%
+          margin 30px auto 0 auto
+          overflow hidden
+          text-align center
+          .playing-lyric {
+            height 20px
+            line-height 20px
+            font-size $font-size-medium
+            color $color-text-l
           }
         }
       }
