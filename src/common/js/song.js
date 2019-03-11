@@ -11,18 +11,19 @@ class Song {
     this.image = image
     this.url = url
   }
-  async getLyric () {
+  getLyric () {
     if (this.lyric) {
       return Promise.resolve(this.lyric)
     }
     return new Promise((resolve, reject) => {
       try {
-        let res = await getLyric(this.id)
-        if (res.code === 200) {
-          this.lyric = res.lrc.lyric
-          return Promise.resolve(lyric)
-        }
-      } catch(err) {
+        getLyric(this.id).then(res => {
+          if (res.code === 200) {
+            this.lyric = res.lrc.lyric
+            resolve(this.lyric)
+          }
+        })
+      } catch (err) {
         reject(err)
       }
     })
