@@ -66,11 +66,14 @@ export default {
     },
     getWidth () {
       let that = this
-      wx.createSelectorQuery().select('.progress-bar').boundingClientRect(res => {
-        that.progressBarWidth = res.width
-        that.progressBarLeft = res.left
-        console.log('width-bar', res)
-      }).exec()
+      try {
+        wx.createSelectorQuery().select('.progress-bar').boundingClientRect(res => {
+          that.progressBarWidth = res.width
+          that.progressBarLeft = res.left
+        }).exec()
+      } catch (err) {
+        console.log('get progress-bar-width error')
+      }
     }
   },
   watch: {

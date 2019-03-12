@@ -13,4 +13,11 @@ export const mode = state => state.mode
 export const currentIndex = state => state.currentIndex
 
 export const currentSong = state => state.playList[state.currentIndex] || {}
+
 export const playing = state => state.playing
+
+export const playHistory = state => state.playHistory
+
+export const searchHistory = state => state.searchHistory
+
+export const favoriteList = state => state.favoriteList

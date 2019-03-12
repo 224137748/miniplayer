@@ -5,7 +5,7 @@
         <span :class="{active: tabIndex===index}" class="tab-link">{{item}}</span>
       </div>
     </scroll-view>
-    <div class="main-container">
+    <div class="main-container" :style="wrapperStyle">
       <swiper @change="swiperChange($event)" class="swiper-wrap" :indicator-dots="false" :autoplay="false" :current="tabIndex">
         <swiper-item class="swiper-item">
           <recommend :tabIndex="tabIndex"></recommend>
@@ -39,7 +39,8 @@
 import Recommend from 'components/recommend/recommend'
 import Singer from 'components/singer/singer'
 import MusicPlayer from 'components/player/player'
-
+import { SEARCH_KEY, PLAY_KEY, FAVORITE_KEY } from 'common/js/config'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   data () {
     return {
@@ -49,7 +50,8 @@ export default {
       userInfo: {
         nickName: 'mpvue',
         avatarUrl: 'http://mpvue.com/assets/logo.png'
-      }
+      },
+      wrapperStyle: ''
     }
   },
   components: {
@@ -61,18 +63,68 @@ export default {
     currentTab () {
       let index = this.tabIndex - 2
       return index >= 0 ? `id${index}` : 'id0'
-    }
+    },
+    ...mapGetters([
+      'playHistory',
+      'searchHistory',
+      'favoriteList',
+      'playList'
+    ])
+  },
+  created () {
+    this._getUserData()
   },
   methods: {
+    _getUserData () {
+      let that = this
+      wx.getStorage({
+        key: SEARCH_KEY,
+        success (res) {
+          that.setSearchHistory(res.data || [])
+        },
+        fail () {
+          console.log('get searchHistory fail')
+        }
+      })
+      wx.getStorage({
+        key: PLAY_KEY,
+        success (res) {
+          that.setPlayHistory(res.data || [])
+        },
+        fail () {
+          console.log('get playHistory fail')
+        }
+      })
+      wx.getStorage({
+        key: FAVORITE_KEY,
+        success (res) {
+          that.setFavoriteList(res.data || [])
+        },
+        fail () {
+          console.log('get favoriteList fail')
+        }
+      })
+    },
     selectItem (index) {
       this.tabIndex = index
     },
     swiperChange (evt) {
       this.selectItem(evt.target.current)
-    }
+    },
+    handlePlayList () {
+      const bottom = this.playList.length > 0 ? '60' : 0
+      this.wrapperStyle = `bottom: ${bottom}px`
+    },
+    ...mapMutations({
+      setPlayHistory: 'SET_PLAY_HISTTORY',
+      setSearchHistory: 'SET_SEARCH_HISTTORY',
+      setFavoriteList: 'SET_FAVORITE_LIST'
+    })
   },
-
-  created () {
+  watch: {
+    playList (newVal) {
+      this.handlePlayList()
+    }
   }
 }
 </script>

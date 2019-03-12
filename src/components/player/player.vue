@@ -1,7 +1,7 @@
 <template>
   <div class="player" v-show="playList.length" @touchmove.prevent.stop @click.stop>
     <transition name="normal">
-      <div class="normal-player" v-show="fullScreen">
+      <div class="normal-player" v-show="!fullScreen">
         <div class="background">
           <img class="background-iamge" :src="currentSong.image" alt="">
         </div>
@@ -57,25 +57,40 @@
             <div class="icon i-right" :class="disableCls">
               <i class="icon-next" @click="next"></i>
             </div>
-            <div class="icon i-right">
-              <i class="icon"></i>
+            <div class="icon i-right" @click="toggleFavorite">
+              <i class="icon" :class="favoriteIcon"></i>
             </div>
           </div>
         </div>
       </div>
     </transition>
+    <div class="mini-player" v-show="fullScreen">
+      <div class="icon">
+        <img :src="currentSong.image" :class="cdCls" class="icon-image" alt="">
+      </div>
+      <div class="text">
+        <h2 class="name">{{currentSong.name}}</h2>
+        <p class="desc">{{currentSong.singer}}</p>
+      </div>
+      <div class="control">
+        <playgress-circle>
+          <i class="icon-mini"></i>
+        </playgress-circle>
+      </div>
+      <div class="control">
+        <i class="icon-playlist"></i>
+      </div>
+    </div>
   </div>
 </template>
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
+import PlaygressCircle from 'base/progress-circle/progress-circle'
 import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
 import ProgressBar from 'base/progress-bar/progress-bar'
-// import { prefixStyle } from 'common/js/dom'
 import Lyric from 'lyric-parser'
 const BASEURL = 'https://aixbx.xyz'
-// const transform = prefixStyle('transform')
-// const transitionDuration = prefixStyle('transitionDuration')
 export default {
   data () {
     return {
@@ -90,17 +105,18 @@ export default {
       middleLStyle: '',
       Animation: {},
       currentTime: 0,
-      duration: 0
+      duration: 0,
+      favoriteIcon: 'icon-not-favorite'
     }
   },
   components: {
-    ProgressBar
+    ProgressBar,
+    PlaygressCircle
   },
   created () {
     this.animation = wx.createAnimation({duration: 20000 * 100})
     this.touch = {}
     this.initAuido()
-    console.log('created')
     this.getSyctemInfo()
   },
   computed: {
@@ -130,6 +146,10 @@ export default {
       const second = this._pad(interval % 60)
       return `${minute}:${second}`
     },
+    // 确定是否全屏
+    isfullscreen () {
+      return this.fullScreen ? 'full' : 'unfull'
+    },
     ...mapGetters([
       'playList',
       'fullScreen',
@@ -137,7 +157,8 @@ export default {
       'sequenceList',
       'playing',
       'currentSong',
-      'mode'
+      'mode',
+      'favoriteList'
     ])
   },
   mounted () {
@@ -187,7 +208,11 @@ export default {
     ready () {
       this.songReady = true
       if (this.currentSong.name) {
-        console.log('存入播放历史， save-history')
+        // console.log('存入播放历史， save-history')
+        this.savePlayHistory({
+          song: this.currentSong,
+          wx
+        })
       }
     },
     error (code) {
@@ -205,7 +230,6 @@ export default {
       }
     },
     loop () {
-      console.log('loop')
       this.audioCtx.seek(0)
       // this.audioCtx.currentTime = 0
       this.audioCtx.play()
@@ -250,7 +274,6 @@ export default {
         }
       }
       this.songReady = false
-      console.log('next')
     },
     togglePlaying () {
       if (!this.songReady) {
@@ -288,6 +311,24 @@ export default {
       }
       this.resetCurrentIndex(list)
       this.setPlayList(list)
+    },
+    // 设置个人喜爱
+    toggleFavorite () {
+      let index = this.favoriteList.findIndex(el => {
+        return el.name === this.currentSong.name
+      })
+      let obj = {
+        song: this.currentSong,
+        wx
+      }
+      if (index > -1) {
+        this.deleteFavoriteList(obj)
+      } else {
+        this.saveFavoriteList(obj)
+      }
+      setTimeout(() => {
+        this.isFavoriteSong(this.currentSong)
+      }, 200)
     },
     // 重新设置当前歌曲的索引
     resetCurrentIndex (list) {
@@ -357,7 +398,18 @@ export default {
           this.animation.rotate(this.rotateAngle, 0).scale(1).translate(0, 0).skew(0, 0).step({duration: 0})
         }
         this.Animation = this.animation.export()
-      }, 200)
+      }, 300)
+    },
+    // 检查是否是喜欢的歌曲
+    isFavoriteSong (song) {
+      let index = this.favoriteList.findIndex((item) => {
+        return item.name === song.name
+      })
+      if (index > -1) {
+        this.favoriteIcon = 'icon-favorite'
+      } else {
+        this.favoriteIcon = 'icon-not-favorite'
+      }
     },
     onPercentChange (percent) {
       let currentTime = percent * this.currentSong.duration
@@ -369,6 +421,13 @@ export default {
         this.currentLyric.seek(currentTime * 1000)
       }
     },
+    // 关闭往前页面
+    back () {
+      this.setFullScreen(false)
+    },
+    open () {
+      this.setFullScreen(true)
+    },
     ...mapMutations({
       setPlayState: 'SET_PLAYING_STATE',
       setFullScreen: 'SET_FULL_SCREEN',
@@ -376,7 +435,12 @@ export default {
       setPlayMode: 'SET_PLAY_MODE',
       setPlayList: 'SET_PLAYLIST',
       setCurrentIndex: 'SET_CURRENT_INDEX'
-    })
+    }),
+    ...mapActions([
+      'saveFavoriteList',
+      'deleteFavoriteList',
+      'savePlayHistory'
+    ])
   },
   watch: {
     async currentSong (newSong, oldSong) {
@@ -388,9 +452,12 @@ export default {
       wx.showLoading({
         title: '加载中'
       })
+      setTimeout(() => {
+        wx.hideLoading()
+      }, 1000)
       let url = '/song/url'
       let res = await this.$http.get(BASEURL + url, {id: newSong.id})
-      console.log('get song url', res.data)
+      // console.log('get song url', res.data)
       if (res.code === 200) {
         if (res.data[0].url) {
           this.audioCtx.src = res.data[0].url
@@ -406,9 +473,8 @@ export default {
         this.currentLyric.stop()
       }
       this.getLyric()
-      setTimeout(() => {
-        wx.hideLoading()
-      }, 1000)
+      // 检查是否是喜欢的歌曲
+      this.isFavoriteSong(newSong)
     },
     playing (newVal) {
       if (this.audioCtx.src) {
@@ -426,11 +492,6 @@ export default {
 @import "~common/stylus/variable"
 @import "~common/stylus/mixin"
 .player {
-  position fixed
-  left 0
-  top 0
-  right 0
-  bottom 0
   .normal-player {
     position fixed
     left 0
@@ -651,6 +712,61 @@ export default {
         .icon-favorite {
           color $color-sub-theme
         }
+      }
+    }
+  }
+  .mini-player {
+    display flex
+    align-items center
+    position fixed
+    left 0
+    bottom 0
+    z-index 180
+    width 100%
+    height 60px
+    background $color-highlight-background
+    .icon {
+      flex 0 0 40px
+      width 40px
+      padding 0 10px 0 20px
+      img {
+        width 40px
+        height 40px
+        border-radius 50%
+      }
+    }
+    .text {
+      display flex
+      flex-direction colum
+      justify-content center
+      flex 1
+      line-height 20px
+      over-flow hidden
+      .name {
+        margin-bottom 2px
+        no-wrap()
+        font-size $font-size-medium
+        color $color-text
+      }
+      .desc {
+        no-wrap()
+        font-size $font-size-small
+        color $color-text-d
+      }
+    }
+    .control {
+      flex 0 0 30px
+      width 30px
+      padding 0 10px
+      .icon-play-mini, .icon-pause-mini, .icon-playlist {
+        font-size 30px
+        color $color-theme-d
+      }
+      .icon-mini {
+        font-size 32px
+        position absolute
+        left 0
+        top 0
       }
     }
   }

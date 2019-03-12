@@ -21,7 +21,7 @@ function insertArray (arr, val, compare, maxlen) {
     arr.pop()
   }
 }
-function deleteFromArray(arr, compare) {
+function deleteFromArray (arr, compare) {
   let index = arr.findIndex(compare)
   if (index > -1) {
     arr.splice(index, 1)
@@ -35,11 +35,11 @@ export function saveSearch (query) {
   storage.set(SEARCH_KEY, searches)
   return searches
 }
-export function loadSearch() {
+export function loadSearch () {
   return storage.get(SEARCH_KEY, [])
 }
 
-export function deleteSearch(query) {
+export function deleteSearch (query) {
   let searches = storage.get(SEARCH_KEY, [])
   let index = searches.findIndex((item) => {
     return item === query
@@ -50,12 +50,12 @@ export function deleteSearch(query) {
   storage.set(SEARCH_KEY, searches)
   return searches
 }
-export function clearSearch() {
+export function clearSearch () {
   storage.remove(SEARCH_KEY)
   return []
 }
 
-export function savePlay(song) {
+export function savePlay (song) {
   let songs = storage.get(PLAY_KEY, [])
   insertArray(songs, song, (item) => {
     // 由于音频源的问题，取消id比较
@@ -65,11 +65,11 @@ export function savePlay(song) {
   return songs
 }
 
-export function loadPlay() {
+export function loadPlay () {
   return storage.get(PLAY_KEY, [])
 }
 
-export function saveFavorite(song) {
+export function saveFavorite (song) {
   let songs = storage.get(FAVORITE_KEY, [])
   insertArray(songs, song, (item) => {
     return item.name === song.name
@@ -77,7 +77,7 @@ export function saveFavorite(song) {
   storage.set(FAVORITE_KEY, songs)
   return songs
 }
-export function deleteFavorite(song) {
+export function deleteFavorite (song) {
   let songs = storage.get(FAVORITE_KEY, [])
   deleteFromArray(songs, (item) => {
     return song.name === item.name
@@ -85,6 +85,6 @@ export function deleteFavorite(song) {
   storage.set(FAVORITE_KEY, songs)
   return songs
 }
-export function loadFavorite() {
+export function loadFavorite () {
   return storage.get(FAVORITE_KEY, [])
 }

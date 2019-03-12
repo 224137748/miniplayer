@@ -15,6 +15,12 @@ const state = {
   // 播放模式
   mode: playMode.sequence,
   // 播放当前歌曲的索引
-  currentIndex: -1
+  currentIndex: -1,
+  // 播放历史
+  playHistory: [],
+  // 搜索历史
+  searchHistory: [],
+  // 收藏列表
+  favoriteList: []
 }
 export default state

@@ -30,6 +30,15 @@ const mutations = {
   },
   [types.SET_CURRENT_INDEX] (state, index) {
     state.currentIndex = index
+  },
+  [types.SET_PLAY_HISTTORY] (state, playHistory) {
+    state.playHistory = playHistory
+  },
+  [types.SET_FAVORITE_LIST] (state, favoriteList) {
+    state.favoriteList = favoriteList
+  },
+  [types.SET_SEARCH_HISTTORY] (state, searchHistory) {
+    state.searchHistory = searchHistory
   }
 }
 export default mutations
