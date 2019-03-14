@@ -3,6 +3,7 @@
     "pages/index/main",
     "pages/disc/main",
     "pages/singer-detail/main",
+    "pages/player/main",
     "pages/logs/main"
   ],
   "window": {
@@ -10,5 +11,25 @@
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "WeChat",
     "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#fff",
+    "selectColor": "#ffcd32",
+    "backgroundColor": "#222",
+    "position": "bottom",
+    "list": [
+      {
+        "pagePath": "pages/index/main",
+        "text": "首页",
+        "iconPath": "/static/tabs/home.png",
+        "selectedIconPath": "/static/tabs/home-active.png"
+      },
+      {
+        "pagePath": "pages/player/main",
+        "text": "音乐",
+        "iconPath": "/static/tabs/orders.png",
+        "selectedIconPath": "/static/tabs/orders-active.png"
+      }
+    ]
   }
 }

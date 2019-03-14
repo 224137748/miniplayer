@@ -1,7 +1,7 @@
 var Fly = require('flyio/dist/npm/wx')
 var fly = new Fly()
 
-fly.config.timeout = 5000
+fly.config.timeout = 30000
 
 // 请求拦截器
 fly.interceptors.request.use(function (request) {

@@ -1,70 +1,68 @@
 <template>
   <div class="player" v-show="playList.length" @touchmove.prevent.stop @click.stop>
-    <transition name="normal">
-      <div class="normal-player" v-show="!fullScreen">
-        <div class="background">
-          <img class="background-iamge" :src="currentSong.image" alt="">
+    <div class="normal-player" >
+      <div class="background">
+        <img class="background-iamge" :src="currentSong.image" alt="">
+      </div>
+      <div class="top">
+        <!-- <div class="back" @click="back">
+          <i class="icon-back"></i>
+        </div> -->
+        <h1 class="title">{{currentSong.name}}</h1>
+        <h2 class="subtitle">{{currentSong.singer}}</h2>
+      </div>
+      <div class="middle" @touchstart="middleTouchStart" @touchmove="middleTouchMove" @touchend="middleTouchEnd">
+        <div class="middle-l" :style="middleLStyle">
+          <div class="cd-wrapper">
+            <div class="cd">
+              <img :src="currentSong.image" class="image" alt="" :animation="Animation">
+            </div>
+          </div>
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric">{{playingLyric}}</div>
+          </div>
         </div>
-        <div class="top">
-          <div class="back" @click="back">
-            <i class="icon-back"></i>
+        <scroll-view duration="500" class="middle-r" :scroll-into-view="scrollId" scroll-y :style="lyricListStyle">
+          <div class="lyric-wrapper">
+            <div v-if="currentLyric">
+              <p :id="'id' + index" class="text" :class="{current: currentLineNum === index}" v-for="(line, index) of currentLyric.lines" :key="index">{{line.txt}}</p>
+            </div>
+            <div class="text" v-else>抱歉，暂未搜索到歌词~！</div>
           </div>
-          <h1 class="title">{{currentSong.name}}</h1>
-          <h2 class="subtitle">{{currentSong.singer}}</h2>
+        </scroll-view>
+      </div>
+      <div class="bottom">
+        <div class="dot-wrapper">
+          <span class="dot" :class="{active: currentShow === 'cd'}"></span>
+          <span class="dot" :class="{active: currentShow === 'lyric'}"></span>
         </div>
-        <div class="middle" @touchstart="middleTouchStart" @touchmove="middleTouchMove" @touchend="middleTouchEnd">
-          <div class="middle-l" :style="middleLStyle">
-            <div class="cd-wrapper">
-              <div class="cd">
-                <img :src="currentSong.image" class="image" alt="" :animation="Animation">
-              </div>
-            </div>
-            <div class="playing-lyric-wrapper">
-              <div class="playing-lyric">{{playingLyric}}</div>
-            </div>
+        <div class="progress-wrapper">
+          <span class="time time-l">{{format}}</span>
+          <div class="progress-bar-wrapper">
+            <progress-bar :percent="percent" @percentChange="onPercentChange"></progress-bar>
           </div>
-          <scroll-view duration="500" class="middle-r" :scroll-into-view="scrollId" scroll-y :style="lyricListStyle">
-            <div class="lyric-wrapper">
-              <div v-if="currentLyric">
-                <p :id="'id' + index" class="text" :class="{current: currentLineNum === index}" v-for="(line, index) of currentLyric.lines" :key="index">{{line.txt}}</p>
-              </div>
-              <div class="text" v-else>抱歉，暂未搜索到歌词~！</div>
-            </div>
-          </scroll-view>
+          <span class="time time-r">{{duration}}</span>
         </div>
-        <div class="bottom">
-          <div class="dot-wrapper">
-            <span class="dot" :class="{active: currentShow === 'cd'}"></span>
-            <span class="dot" :class="{active: currentShow === 'lyric'}"></span>
+        <div class="operators">
+          <div class="icon i-left" @click="changeMode">
+            <i :class="iconMode"></i>
           </div>
-          <div class="progress-wrapper">
-            <span class="time time-l">{{format}}</span>
-            <div class="progress-bar-wrapper">
-              <progress-bar :percent="percent" @percentChange="onPercentChange"></progress-bar>
-            </div>
-            <span class="time time-r">{{duration}}</span>
+          <div class="icon i-left" :class="disableCls">
+            <i class="icon-prev" @click="prev"></i>
           </div>
-          <div class="operators">
-            <div class="icon i-left" @click="changeMode">
-              <i :class="iconMode"></i>
-            </div>
-            <div class="icon i-left" :class="disableCls">
-              <i class="icon-prev" @click="prev"></i>
-            </div>
-            <div class="icon i-center" :class="disableCls">
-              <i :class="playIcon" @click="togglePlaying"></i>
-            </div>
-            <div class="icon i-right" :class="disableCls">
-              <i class="icon-next" @click="next"></i>
-            </div>
-            <div class="icon i-right" @click="toggleFavorite">
-              <i class="icon" :class="favoriteIcon"></i>
-            </div>
+          <div class="icon i-center" :class="disableCls">
+            <i :class="playIcon" @click="togglePlaying"></i>
+          </div>
+          <div class="icon i-right" :class="disableCls">
+            <i class="icon-next" @click="next"></i>
+          </div>
+          <div class="icon i-right" @click="toggleFavorite">
+            <i class="icon" :class="favoriteIcon"></i>
           </div>
         </div>
       </div>
-    </transition>
-    <div class="mini-player" v-show="fullScreen">
+    </div>
+    <!-- <div class="mini-player" v-show="fullScreen">
       <div class="icon">
         <img :src="currentSong.image" :class="cdCls" class="icon-image" alt="">
       </div>
@@ -80,7 +78,7 @@
       <div class="control">
         <i class="icon-playlist"></i>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
@@ -90,6 +88,7 @@ import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import Lyric from 'lyric-parser'
+import { createSong } from 'common/js/song'
 const BASEURL = 'https://aixbx.xyz'
 export default {
   data () {
@@ -115,6 +114,9 @@ export default {
   },
   created () {
     this.animation = wx.createAnimation({duration: 20000 * 100})
+    setTimeout(() => {
+      this.initData()
+    }, 200)
     this.touch = {}
     this.initAuido()
     this.getSyctemInfo()
@@ -164,6 +166,32 @@ export default {
   mounted () {
   },
   methods: {
+    async initData () {
+      if (this.playList.length) {
+        console.log('playlist 有数据')
+      } else {
+        let res = await this.$http.get(BASEURL + '/top/playlist?limit=10&order=hot')
+        if (res.code === 200) {
+          let index = Math.random() * 10 | 0
+          let id = res.playlists[index].id
+          if (id) {
+            let songList = await this.$http.get(BASEURL + '/playlist/detail?id=' + id)
+            if (songList.code === 200) {
+              let songs = songList.playlist.tracks.map(el => {
+                if (el.id) {
+                  return createSong(el)
+                }
+              })
+              this.selectPlay({
+                list: songs,
+                index: 0,
+                autoPlay: false
+              })
+            }
+          }
+        }
+      }
+    },
     // 获取屏幕信息
     getSyctemInfo () {
       let that = this
@@ -177,6 +205,7 @@ export default {
       let audioCtx = wx.createInnerAudioContext()
       audioCtx.onPlay(this.ready)
       audioCtx.onCanplay(() => {
+        this.songReady = true
         console.log('music is ready')
         this.playing && audioCtx.play()
       })
@@ -204,9 +233,8 @@ export default {
       this.currentLineNum = lineNum
       this.playingLyric = lyric.txt
     },
-    // 歌曲准备
+    // 播放监听
     ready () {
-      this.songReady = true
       if (this.currentSong.name) {
         // console.log('存入播放历史， save-history')
         this.savePlayHistory({
@@ -439,7 +467,8 @@ export default {
     ...mapActions([
       'saveFavoriteList',
       'deleteFavoriteList',
-      'savePlayHistory'
+      'savePlayHistory',
+      'selectPlay'
     ])
   },
   watch: {
@@ -640,7 +669,7 @@ export default {
     }
     .bottom {
       position absolute
-      bottom 50px
+      bottom 15px
       width 100%
       .dot-wrapper {
         text-align center

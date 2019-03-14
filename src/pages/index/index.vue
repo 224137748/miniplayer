@@ -5,7 +5,7 @@
         <span :class="{active: tabIndex===index}" class="tab-link">{{item}}</span>
       </div>
     </scroll-view>
-    <div class="main-container" :style="wrapperStyle">
+    <div class="main-container" >
       <swiper @change="swiperChange($event)" class="swiper-wrap" :indicator-dots="false" :autoplay="false" :current="tabIndex">
         <swiper-item class="swiper-item">
           <recommend :tabIndex="tabIndex"></recommend>
@@ -14,7 +14,7 @@
           <singer></singer>
         </swiper-item>
         <swiper-item class="swiper-item">
-          <div>3</div>
+          <rank></rank>
         </swiper-item>
         <swiper-item class="swiper-item">
           <div>4</div>
@@ -30,7 +30,6 @@
         </swiper-item>
       </swiper>
     </div>
-    <music-player></music-player>
   </div>
 </template>
 
@@ -38,9 +37,9 @@
 // import card from '@/components/card'
 import Recommend from 'components/recommend/recommend'
 import Singer from 'components/singer/singer'
-import MusicPlayer from 'components/player/player'
 import { SEARCH_KEY, PLAY_KEY, FAVORITE_KEY } from 'common/js/config'
 import { mapGetters, mapMutations } from 'vuex'
+import Rank from 'components/rank/rank'
 export default {
   data () {
     return {
@@ -50,14 +49,13 @@ export default {
       userInfo: {
         nickName: 'mpvue',
         avatarUrl: 'http://mpvue.com/assets/logo.png'
-      },
-      wrapperStyle: ''
+      }
     }
   },
   components: {
     Recommend,
     Singer,
-    MusicPlayer
+    Rank
   },
   computed: {
     currentTab () {
@@ -111,10 +109,6 @@ export default {
     swiperChange (evt) {
       this.selectItem(evt.target.current)
     },
-    handlePlayList () {
-      const bottom = this.playList.length > 0 ? '60' : 0
-      this.wrapperStyle = `bottom: ${bottom}px`
-    },
     ...mapMutations({
       setPlayHistory: 'SET_PLAY_HISTTORY',
       setSearchHistory: 'SET_SEARCH_HISTTORY',
@@ -122,9 +116,6 @@ export default {
     })
   },
   watch: {
-    playList (newVal) {
-      this.handlePlayList()
-    }
   }
 }
 </script>

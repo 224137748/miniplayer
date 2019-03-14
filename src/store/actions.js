@@ -10,7 +10,7 @@ function findIndex (list, song) {
   })
 }
 
-export const selectPlay = function ({ commit, state }, { list, index }) {
+export const selectPlay = function ({ commit, state }, { list, index, autoPlay }) {
   commit(types.SET_SEQUENCE_LIST, list)
   if (state.mode === playMode.random) {
     let randomList = shuffle(list)
@@ -21,7 +21,9 @@ export const selectPlay = function ({ commit, state }, { list, index }) {
   }
   commit(types.SET_CURRENT_INDEX, index)
   // 微信小程序执行顺序修改
-  commit(types.SET_PLAYING_STATE, true)
+  if (autoPlay) {
+    commit(types.SET_PLAYING_STATE, true)
+  }
   commit(types.SET_FULL_SCREEN, true)
 }
 

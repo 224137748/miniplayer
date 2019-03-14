@@ -69,10 +69,11 @@ export default {
     selectSongs (item, index) {
       this.selectPlay({
         list: this.songs,
-        index
+        index,
+        autoPlay: true
       })
-      wx.reLaunch({
-        url: '/pages/index/main'
+      wx.switchTab({
+        url: '/pages/player/main'
       })
     },
     ...mapActions(['selectPlay'])
