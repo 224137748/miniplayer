@@ -76,7 +76,12 @@ export default {
         url: '/pages/player/main'
       })
     },
-    ...mapActions(['selectPlay'])
+    random () {
+      this.randomPlay({
+        list: this.songs
+      })
+    },
+    ...mapActions(['selectPlay', 'randomPlay'])
   },
   watch: {
     scrollY (newY) {

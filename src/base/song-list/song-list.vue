@@ -2,7 +2,9 @@
   <div class="song-list">
     <ul>
       <li class="item" v-for="(song, index) of songs" :key="index" @click="selectItem(song, index)">
-        <div class="rank" v-show="rank"></div>
+        <div class="rank" v-show="rank">
+          <span class="text icon" :class="'icon' + index">{{index > 2 ? index + 1 : ''}}</span>
+        </div>
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
           <p class="desc">{{song.singer + '-' + song.album}}</p>
@@ -15,9 +17,14 @@
 import { mapGetters } from 'vuex'
 export default {
   props: {
+    rank: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
-    return {}
+    return {
+    }
   },
   computed: {
     ...mapGetters([
@@ -44,6 +51,31 @@ export default {
     height 64px
     font-size $font-size-medium
     color white
+    .rank {
+      flex 0 0 25px
+      width 25px
+      margin-right: 30px
+      text-align: center
+      .icon {
+        display inline-block
+        width 25px
+        height 24px
+        background-size 25px 24px
+        &.icon0 {
+          bg-image('first')
+        }
+        &.icon1 {
+          bg-image('second')
+        }
+        &.icon2 {
+          bg-image('third')
+        }
+      }
+      .text {
+        color $color-theme
+        font-size $font-size-large
+      }
+    }
     .content {
       flex 1
       line-height 20px

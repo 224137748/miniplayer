@@ -17,7 +17,7 @@
           <rank></rank>
         </swiper-item>
         <swiper-item class="swiper-item">
-          <div>4</div>
+          <search></search>
         </swiper-item>
         <swiper-item class="swiper-item">
           <div>5</div>
@@ -40,10 +40,11 @@ import Singer from 'components/singer/singer'
 import { SEARCH_KEY, PLAY_KEY, FAVORITE_KEY } from 'common/js/config'
 import { mapGetters, mapMutations } from 'vuex'
 import Rank from 'components/rank/rank'
+import Search from 'components/search/search'
 export default {
   data () {
     return {
-      tabIndex: 0,
+      tabIndex: 3,
       tabList: ['推荐', '歌手', '排行', '搜索', '热门', '电台', '嘻哈'],
       motto: 'Hello miniprograme',
       userInfo: {
@@ -55,7 +56,8 @@ export default {
   components: {
     Recommend,
     Singer,
-    Rank
+    Rank,
+    Search
   },
   computed: {
     currentTab () {

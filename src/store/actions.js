@@ -1,6 +1,6 @@
 import * as types from './mutation-types'
 // import { playMode, SEARCH_MAX_LENGTH, SEARCH_KEY, PLAY_KEY, PLAY_MAX_LENGTH, FAVORITE_KEY, FAVORITE_MAX_LENGTH } from 'common/js/config'
-import { playMode, PLAY_KEY, PLAY_MAX_LENGTH, FAVORITE_MAX_LENGTH, FAVORITE_KEY } from 'common/js/config'
+import { playMode, PLAY_KEY, PLAY_MAX_LENGTH, FAVORITE_MAX_LENGTH, FAVORITE_KEY, SEARCH_KEY, SEARCH_MAX_LENGTH } from 'common/js/config'
 
 import { shuffle } from 'common/js/util'
 
@@ -25,6 +25,16 @@ export const selectPlay = function ({ commit, state }, { list, index, autoPlay }
     commit(types.SET_PLAYING_STATE, true)
   }
   commit(types.SET_FULL_SCREEN, true)
+}
+
+export const randomPlay = function ({ commit }, { list }) {
+  commit(types.SET_PLAY_MODE, playMode.random)
+  commit(types.SET_SEQUENCE_LIST, list)
+  let randomList = shuffle(list)
+  commit(types.SET_PLAYLIST, randomList)
+  commit(types.SET_CURRENT_INDEX, 0)
+  commit(types.SET_FULL_SCREEN, true)
+  commit(types.SET_PLAYING_STATE, true)
 }
 
 export const savePlayHistory = function ({ commit, state }, { song, wx }) {
@@ -103,4 +113,61 @@ function deleteFavorite (favoriteList, song, wx) {
     }
   })
   return songs
+}
+
+export const saveSearchHistory = function ({ commit, state }, { query, wx }) {
+  commit(types.SET_SEARCH_HISTTORY, saveSearch(state.searchHistory, query, wx))
+}
+
+export const deleteSearchHistory = function ({ commit, state }, { query, wx }) {
+  commit(types.SET_SEARCH_HISTTORY, deleteSearch(state.searchHistory, query, wx))
+}
+export const celarSearchHistory = function ({ commit, state }, { wx }) {
+  commit(types.SET_SEARCH_HISTTORY, clearSearch(wx))
+}
+
+// 保存搜索的歌曲
+function saveSearch (searchHistory, query, wx) {
+  let searches = searchHistory.slice()
+  insertArray(searches, query, (item) => {
+    return item === query
+  }, SEARCH_MAX_LENGTH)
+  wx.setStorage({
+    key: SEARCH_KEY,
+    data: searches,
+    success () {
+      console.log('已经保存搜索歌曲')
+    }
+  })
+  return searches
+}
+
+// 删除搜索歌曲记录
+function deleteSearch (searchHistory, query) {
+  let searches = searchHistory.slice()
+  let index = searches.findIndex((item) => {
+    return item === query
+  })
+  if (index > -1) {
+    searches.splice(index, 1)
+  }
+  wx.setStorage({
+    key: SEARCH_KEY,
+    data: searches,
+    success () {
+      console.log('已经删除当前搜索歌曲')
+    }
+  })
+  return searches
+}
+// 删除所有搜素记录
+function clearSearch (wx) {
+  wx.setStorage({
+    key: SEARCH_KEY,
+    data: [],
+    success () {
+      console.log('已经删除所有搜索歌曲')
+    }
+  })
+  return []
 }

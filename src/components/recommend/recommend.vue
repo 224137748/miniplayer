@@ -70,7 +70,7 @@ export default {
     },
     selectItem (item) {
       wx.navigateTo({
-        url: `/pages/disc/main?id=${item.id}`
+        url: `/pages/disc/main?id=${item.id}&rankType=0`
       })
       let obj = {
         name: item.name,

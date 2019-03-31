@@ -41,3 +41,20 @@ export function createSong (musicData) {
     url: ''
   })
 }
+export function createSong3 (musicData) {
+  let singers = []
+  musicData.artists.forEach(item => {
+    singers.push(item.name)
+  })
+  return new Song({
+    id: musicData.id,
+    mid: musicData.artists[0].id || '',
+    singer: singers.join(' & ') || '',
+    name: musicData.name,
+    album: musicData.album.name,
+    duration: parseInt(musicData.duration / 1000),
+    image: musicData.artists[0].img1v1Url,
+    url: '',
+    isQQ: false
+  })
+}

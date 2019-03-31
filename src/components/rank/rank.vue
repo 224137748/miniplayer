@@ -23,6 +23,7 @@
 <script>
 import Loading from 'base/loading/loading'
 import { createSong } from 'common/js/song'
+import { mapMutations } from 'vuex'
 const BASEURL = 'https://aixbx.xyz'
 export default {
   data () {
@@ -78,7 +79,18 @@ export default {
     },
     selectItem (item, index) {
       console.log(item, index)
-    }
+      wx.navigateTo({
+        url: `/pages/disc/main?id=${item.id}&rankType=1`
+      })
+      let obj = {
+        name: item.description,
+        picUrl: item.picUrl
+      }
+      this.setDisc(obj)
+    },
+    ...mapMutations({
+      setDisc: 'SET_DISC'
+    })
   }
 }
 </script>

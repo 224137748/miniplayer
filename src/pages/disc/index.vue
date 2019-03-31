@@ -1,6 +1,6 @@
 <template>
   <div class="disc-wrap">
-    <music-list  :title="this.title" :bgImage="this.bgImage" :rank="false"></music-list>
+    <music-list  :title="this.title" :bgImage="this.bgImage" :rank="rank"></music-list>
   </div>
 </template>
 <script>
@@ -13,11 +13,13 @@ export default {
   data () {
     return {
       id: '',
+      rank: false,
       description: ''
     }
   },
   onLoad (option) {
     this.id = option.id
+    this.rank = option.rankType === '1'
   },
   components: {
     MusicList
